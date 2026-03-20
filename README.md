@@ -2,7 +2,7 @@
 
 An open-source, LLM-powered personal health dashboard built with Streamlit. Connect your Fitbit, explore your activity, sleep, and heart rate data through interactive charts, and get AI-generated insights powered by Groq.
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.x-red) ![License](https://img.shields.io/badge/License-MIT-green)
+![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.x-red)
 
 ---
 
@@ -21,7 +21,6 @@ Anyone can use it by entering their own Fitbit developer credentials directly in
 | **Activity** | Daily steps, 7-day rolling average, hourly breakdown, cumulative chart |
 | **Heart rate** | Resting HR trend, 3-day rolling average, next-day forecast |
 | **Sleep** | Duration, stage breakdown (deep/light/REM/wake), bedtime consistency |
-| **Wellness** | Skin temperature variation, respiratory rate, SpO2, cardio fitness (VO2 Max) |
 | **Analytics** | Linear regression forecasts, z-score outlier detection, sleep/steps correlation |
 | **Consistency score** | Composite daily score across steps, sleep, efficiency, bedtime, and recovery |
 | **AI insights** | Groq LLM summary of your metrics — window summary or selected-day drilldown |
@@ -37,16 +36,7 @@ Anyone can use it by entering their own Fitbit developer credentials directly in
 - Set **Redirect URL** to `http://localhost:8501/`
 - Note your **Client ID** and **Client Secret**
 
-### 2. Install and run
-
-```bash
-git clone https://github.com/vasanthbhaskara/fitbit-dashboard.git
-cd fitbit-dashboard
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-### 3. Connect in the UI
+### 2. Connect in the UI
 
 On first load the app shows a credentials form. Enter your Client ID, Client Secret, and Redirect URI — no `.env` file needed.
 
@@ -59,21 +49,6 @@ Click **Connect Fitbit** in the sidebar. After authorizing, you'll be redirected
 ## AI insights (optional)
 
 Get a free API key at [console.groq.com](https://console.groq.com) and enter it in the credentials form. The default model is `llama-3.1-8b-instant`.
-
-The AI sees only aggregated daily metrics — not raw intraday data.
-
----
-
-## Deploying to Streamlit Cloud
-
-1. Fork or push this repo to GitHub
-2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
-3. Select `app.py` as the entry point and deploy
-4. Copy your public Streamlit URL (e.g. `https://yourname-fitbit-dashboard.streamlit.app/`)
-5. Add it as a second Redirect URL in your Fitbit developer app settings
-
-Each visitor uses their own Fitbit developer credentials — no shared API keys.
-
 ---
 
 ## Project structure
@@ -100,13 +75,8 @@ fitbit-dashboard/
 
 ## Notes
 
-- Fitbit's intraday endpoints are available for personal-use apps connected to your own account
 - API responses are cached in session state for 15 minutes to reduce quota pressure
 - The lookback window is capped at 30 days to keep requests predictable
 - Tokens are stored in session state only — nothing is written to disk on Streamlit Cloud
 
 ---
-
-## License
-
-MIT
