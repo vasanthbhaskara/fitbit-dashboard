@@ -1603,9 +1603,7 @@ def render_credentials_sidebar_editor() -> None:
                 "Redirect URI",
                 value=st.session_state.get("fitbit_redirect_uri") or read_secret("FITBIT_REDIRECT_URI", ""),
                 placeholder="https://your-app.streamlit.app/",
-                help="Copy the URL from your browser address bar and paste it here. Must match exactly what you set in the Fitbit developer portal.",
-            ),
-                        )
+                help="Copy the URL from your browser address bar and paste it here. Must match exactly what you set in the Fitbit developer portal."),
             groq_key = st.text_input(
                 "Groq API Key",
                 type="password",
@@ -1640,12 +1638,6 @@ def render_credentials_sidebar_editor() -> None:
 # Dashboard render functions
 # ---------------------------------------------------------------------------
 
-def render_empty_state(message: str) -> None:
-    st.markdown(
-        f'<div class="fitbit-empty"><p>{message}</p></div>',
-        unsafe_allow_html=True,
-    )
-
 def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] | None) -> None:
     st.sidebar.header("Fitbit connection")
     auth_url = build_authorize_url(config)
@@ -1664,13 +1656,17 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
 <h2 style="margin:0 0 0.5rem 0;font-size:1.6rem;">Welcome to your Health Dashboard</h2>
 <p style="color:#526071;margin-bottom:2rem;font-size:1rem;line-height:1.6;">Your personal Fitbit analytics — steps, sleep, heart rate, and AI-powered insights, all in one place.</p>
 <div style="text-align:left;background:#f8fbfc;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
-<p style="margin:0 0 0.75rem 0;font-weight:600;color:#0f172a;font-size:0.95rem;">Get started in 2 steps:</p>
+<p style="margin:0 0 0.75rem 0;font-weight:600;color:#0f172a;font-size:0.95rem;">Get started in 3 steps:</p>
 <div style="display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;">
 <div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">1</div>
 <p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">Open the <strong style="color:#0f172a;">sidebar on the left</strong> and enter your Fitbit Client ID and Client Secret in the <strong style="color:#0f172a;">Edit credentials</strong> panel. Don't have them yet? See the <a href="https://github.com/vasanthbhaskara/fitbit-dashboard#how-to-use-the-live-app" target="_blank" style="color:#0f766e;">setup guide</a>.</p>
 </div>
-<div style="display:flex;align-items:flex-start;gap:0.75rem;">
+<div style="display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;">
 <div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">2</div>
+<p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">In the <strong style="color:#0f172a;">Redirect URI</strong> field, paste the URL you see in your browser address bar right now — for example <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;">https://your-app.streamlit.app/</code>. This must exactly match what you set in the Fitbit developer portal, including the trailing slash.</p>
+</div>
+<div style="display:flex;align-items:flex-start;gap:0.75rem;">
+<div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">3</div>
 <p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">Click the <strong style="color:#0f172a;">Connect Fitbit</strong> button in the sidebar to authorise access to your data. You will be redirected to Fitbit and back automatically.</p>
 </div>
 </div>
@@ -1679,7 +1675,6 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
 """
         st.markdown(html, unsafe_allow_html=True)
         st.stop()
-
 
 def render_header(
     profile: dict[str, Any],
