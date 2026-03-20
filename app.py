@@ -1601,8 +1601,11 @@ def render_credentials_sidebar_editor() -> None:
             )
             redirect_uri = st.text_input(
                 "Redirect URI",
-                value=st.session_state.get("fitbit_redirect_uri", ""),
-            )
+                value=st.session_state.get("fitbit_redirect_uri") or read_secret("FITBIT_REDIRECT_URI", ""),
+                placeholder="https://your-app.streamlit.app/",
+                help="Copy the URL from your browser address bar and paste it here. Must match exactly what you set in the Fitbit developer portal.",
+            ),
+                        )
             groq_key = st.text_input(
                 "Groq API Key",
                 type="password",
