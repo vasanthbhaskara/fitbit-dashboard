@@ -1587,7 +1587,6 @@ def render_credentials_setup() -> None:
         st.rerun()
 
 def render_credentials_sidebar_editor() -> None:
-    """Sidebar expander to update credentials mid-session."""
     with st.sidebar.expander("Edit credentials"):
         with st.form("update_creds_form"):
             client_id = st.text_input(
@@ -1603,7 +1602,8 @@ def render_credentials_sidebar_editor() -> None:
                 "Redirect URI",
                 value=st.session_state.get("fitbit_redirect_uri") or read_secret("FITBIT_REDIRECT_URI", ""),
                 placeholder="https://your-app.streamlit.app/",
-                help="Copy the URL from your browser address bar and paste it here. Must match exactly what you set in the Fitbit developer portal."),
+                help="Copy from your browser address bar. Must match exactly what is set in the Fitbit developer portal.",
+            )
             groq_key = st.text_input(
                 "Groq API Key",
                 type="password",
@@ -1632,7 +1632,6 @@ def render_credentials_sidebar_editor() -> None:
             clear_api_cache()
             clear_token_bundle()
             st.rerun()
-
 
 # ---------------------------------------------------------------------------
 # Dashboard render functions
