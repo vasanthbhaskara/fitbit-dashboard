@@ -1688,8 +1688,10 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
 <p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">Click the <strong style="color:#0f172a;">Connect Fitbit</strong> button in the sidebar to authorise access to your data. You will be redirected to Fitbit and back automatically.</p>
 </div>
 </div>
-<p style="margin:0;font-size:0.8rem;color:#94a3b8;">Your credentials are stored only in your browser session and never saved to any database.</p>
+<div style="background:#f0fdf9;border-left:3px solid #0f766e;border-radius:0 8px 8px 0;padding:0.65rem 0.9rem;margin-bottom:1rem;text-align:left;">
+<p style="margin:0;font-size:0.85rem;color:#0f766e;"><strong>Want AI insights?</strong> Get a free Groq API key at <a href="https://console.groq.com" target="_blank" style="color:#0f766e;text-decoration:underline;">console.groq.com</a> and enter it in the Edit credentials panel. No credit card required.</p>
 </div>
+<p style="margin:0;font-size:0.8rem;color:#94a3b8;">Your credentials are stored only in your browser session and never saved to any database.</p></div>
 """
         st.markdown(html, unsafe_allow_html=True)
         st.stop()
