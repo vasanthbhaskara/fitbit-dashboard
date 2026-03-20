@@ -46,9 +46,9 @@ Click **Connect Fitbit** in the sidebar. After authorizing, you'll be redirected
 
 ---
 
-## AI insights (optional)
+### AI insights (optional)
 
-Get a free API key at [console.groq.com](https://console.groq.com) and enter it in the credentials form. The default model is `llama-3.1-8b-instant`.
+Get a free API key at [console.groq.com](https://console.groq.com) and enter it in the credentials form. The default model is `llama-3.1-8b-instant`
 ---
 
 ## Project structure
