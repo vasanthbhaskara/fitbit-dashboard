@@ -2214,11 +2214,11 @@ def render_ai_insights_section(
     st.caption("Optional LLM summary based on aggregated Fitbit metrics. Not medical advice.")
 
     if not llm_config.is_configured:
-        render_empty_state(
-            "Add a Groq API key in the 'Edit credentials' panel in the sidebar to enable AI insights. "
-            f"The default model is `{DEFAULT_GROQ_MODEL}` (free at console.groq.com)."
-        )
-        return
+            st.markdown(
+                f'<div class="fitbit-empty"><p>Add a Groq API key in the Edit credentials panel in the sidebar to enable AI insights. Free at console.groq.com — default model is {DEFAULT_GROQ_MODEL}.</p></div>',
+                unsafe_allow_html=True,
+            )
+            return
 
     insight_scope = st.radio(
         "Insight scope",
@@ -2285,7 +2285,9 @@ def render_ai_insights_section(
     if cached_insight and cached_insight.get("cache_key") == cache_key:
         st.markdown(cached_insight["content"])
     else:
-        render_empty_state("Click Generate insights to create a short summary of your current dashboard data.")
+        st.markdown(
+            '<div class="fitbit-empty"><p>Click Generate insights to create a short summary of your current dashboard data.</p></div>',
+            unsafe_allow_html=True,)
 
 def strip_url_fragment() -> None:
     st.components.v1.html(
