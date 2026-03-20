@@ -125,12 +125,25 @@ def auth_headers(config: FitbitConfig) -> dict[str, str]:
 
 
 def build_authorize_url(config: FitbitConfig) -> str:
+    import urllib.parse
+    # Encode credentials into the state param so they survive the redirect
+    state_data = {
+        "client_id": config.client_id,
+        "client_secret": config.client_secret,
+        "redirect_uri": config.redirect_uri,
+        "groq_api_key": st.session_state.get("groq_api_key", ""),
+        "groq_model": st.session_state.get("groq_model", DEFAULT_GROQ_MODEL),
+    }
+    state = base64.urlsafe_b64encode(
+        json.dumps(state_data).encode()
+    ).decode()
     params = {
         "response_type": "code",
         "client_id": config.client_id,
         "redirect_uri": config.redirect_uri,
         "scope": " ".join(config.scopes),
         "expires_in": "31536000",
+        "state": state,
     }
     return f"{FITBIT_AUTHORIZE_URL}?{urlencode(params)}"
 
@@ -1229,6 +1242,25 @@ def handle_oauth_callback(config: FitbitConfig) -> None:
     code = format_query_param("code")
     if not code:
         return
+
+    # Restore credentials from state param if session state was wiped
+    state = format_query_param("state")
+    if state:
+        try:
+            state_data = json.loads(base64.urlsafe_b64decode(state.encode()).decode())
+            if not st.session_state.get("fitbit_client_id"):
+                st.session_state["fitbit_client_id"] = state_data.get("client_id", "")
+            if not st.session_state.get("fitbit_client_secret"):
+                st.session_state["fitbit_client_secret"] = state_data.get("client_secret", "")
+            if not st.session_state.get("fitbit_redirect_uri"):
+                st.session_state["fitbit_redirect_uri"] = state_data.get("redirect_uri", "")
+            if not st.session_state.get("groq_api_key") and state_data.get("groq_api_key"):
+                st.session_state["groq_api_key"] = state_data.get("groq_api_key", "")
+            # Reload config with restored credentials
+            config = load_config()
+        except Exception:
+            pass
+
     try:
         token_bundle = exchange_code_for_token(config, code)
     except requests.HTTPError as exc:
@@ -2124,23 +2156,23 @@ def main() -> None:
     llm_config = load_llm_config()
 
     if not config.is_configured:
-        # If there's an OAuth code in the URL but session state was lost
-        # (e.g. page refresh), we can't exchange the code — ask user to reconnect
-        if st.query_params.get("code"):
-            st.warning("Your session expired during login. Please enter your credentials again and click Connect Fitbit.")
-            clear_auth_query_params()
-        render_credentials_setup()
-        st.stop()
+        # Check if state param has credentials from OAuth redirect
+        state = format_query_param("state")
+        if state and format_query_param("code"):
+            try:
+                state_data = json.loads(base64.urlsafe_b64decode(state.encode()).decode())
+                st.session_state["fitbit_client_id"] = state_data.get("client_id", "")
+                st.session_state["fitbit_client_secret"] = state_data.get("client_secret", "")
+                st.session_state["fitbit_redirect_uri"] = state_data.get("redirect_uri", "")
+                if state_data.get("groq_api_key"):
+                    st.session_state["groq_api_key"] = state_data.get("groq_api_key", "")
+                config = load_config()
+            except Exception:
+                pass
 
-    render_credentials_sidebar_editor()
-    handle_oauth_callback(config)
-
-    try:
-        token_bundle = get_active_token_bundle(config)
-    except requests.RequestException as exc:
-        st.error(f"Unable to refresh Fitbit access token: {format_request_error(exc)}")
-        clear_token_bundle()
-        st.stop()
+        if not config.is_configured:
+            render_credentials_setup()
+            st.stop()
 
     render_connection_panel(config, token_bundle)
 
