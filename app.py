@@ -2119,22 +2119,19 @@ def main() -> None:
     bootstrap_environment()
     st.set_page_config(page_title="Fitbit Dashboard", page_icon=":heartbeat:", layout="wide")
     apply_app_style()
-    strip_url_fragment()
 
     config = load_config()
     llm_config = load_llm_config()
 
-    # ------------------------------------------------------------------ #
-    # Show the credential setup screen if no config is present yet         #
-    # (session state has priority; falls back to env/.env for local dev)   #
-    # ------------------------------------------------------------------ #
     if not config.is_configured:
         render_credentials_setup()
         st.stop()
 
-    # Allow editing credentials from the sidebar at any time
-    render_credentials_sidebar_editor()
+    # Only strip fragment once credentials are confirmed —
+    # calling it before causes a rerun that wipes session state
+    strip_url_fragment()
 
+    render_credentials_sidebar_editor()
     handle_oauth_callback(config)
 
     try:
