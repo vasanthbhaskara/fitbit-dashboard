@@ -452,6 +452,26 @@ def fetch_intraday_steps(
     frame["steps"] = pd.to_numeric(frame["value"], errors="coerce").fillna(0)
     return frame[["timestamp", "steps"]].dropna().sort_values("timestamp")
 
+def fetch_intraday_heart_rate(
+    config: FitbitConfig,
+    token_bundle: dict[str, Any],
+    selected_date: date,
+) -> pd.DataFrame:
+    payload = cached_fitbit_get(
+        config,
+        token_bundle,
+        f"/1/user/-/activities/heart/date/{selected_date.isoformat()}/1d/1min.json",
+    )
+    dataset = payload.get("activities-heart-intraday", {}).get("dataset", [])
+    frame = pd.DataFrame(dataset)
+    if frame.empty:
+        return pd.DataFrame(columns=["timestamp", "heart_rate"])
+    frame["timestamp"] = pd.to_datetime(
+        selected_date.isoformat() + " " + frame["time"].astype(str),
+        errors="coerce",
+    )
+    frame["heart_rate"] = pd.to_numeric(frame["value"], errors="coerce")
+    return frame[["timestamp", "heart_rate"]].dropna().sort_values("timestamp")
 
 def fetch_intraday_steps_window(
     config: FitbitConfig,
@@ -1943,6 +1963,120 @@ def render_heart_section(heart_daily: pd.DataFrame) -> None:
     style_figure(fig, title="Daily resting heart-rate trend", xaxis_title="Date", yaxis_title="BPM")
     st.plotly_chart(fig, use_container_width=True)
 
+def render_intraday_section(
+    config: FitbitConfig,
+    token_bundle: dict[str, Any],
+    intraday_steps: pd.DataFrame,
+    selected_date: date,
+) -> None:
+    st.subheader(f"Intraday detail — {format_date_compact(selected_date)}")
+
+    intraday_hr = fetch_intraday_heart_rate(config, token_bundle, selected_date)
+
+    # --- Heart rate zones reference lines ---
+    ZONES = {
+        "Fat burn": (114, "#f59e0b"),
+        "Cardio":   (133, "#f97316"),
+        "Peak":     (152, "#ef4444"),
+    }
+
+    # Heart rate over the day
+    if not intraday_hr.empty:
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=intraday_hr["timestamp"],
+            y=intraday_hr["heart_rate"],
+            mode="lines",
+            name="Heart rate",
+            line=dict(color="#ef4444", width=1.5),
+            fill="tozeroy",
+            fillcolor="rgba(239,68,68,0.08)",
+        ))
+        for zone_name, (bpm, color) in ZONES.items():
+            fig.add_hline(
+                y=bpm,
+                line_dash="dot",
+                line_color=color,
+                annotation_text=zone_name,
+                annotation_position="right",
+            )
+        style_figure(fig, title="Heart rate throughout the day", xaxis_title="Time", yaxis_title="BPM")
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        render_empty_state("No intraday heart rate data available for this date.")
+
+    # Heart rate distribution histogram
+    if not intraday_hr.empty:
+        fig = px.histogram(
+            intraday_hr,
+            x="heart_rate",
+            nbins=40,
+            title="Heart rate distribution",
+            labels={"heart_rate": "BPM", "count": "Minutes"},
+            color_discrete_sequence=["#ef4444"],
+        )
+        style_figure(fig, title="Heart rate distribution", xaxis_title="BPM", yaxis_title="Minutes")
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Steps vs heart rate overlay
+    if not intraday_hr.empty and not intraday_steps.empty:
+        # Resample both to 5-min buckets for cleaner overlay
+        hr = intraday_hr.set_index("timestamp").resample("5min").mean().reset_index()
+        steps = intraday_steps.set_index("timestamp").resample("5min").sum().reset_index()
+        merged = hr.merge(steps, on="timestamp", how="inner")
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=merged["timestamp"],
+            y=merged["steps"],
+            name="Steps",
+            marker_color="rgba(15,118,110,0.35)",
+            yaxis="y2",
+        ))
+        fig.add_trace(go.Scatter(
+            x=merged["timestamp"],
+            y=merged["heart_rate"],
+            mode="lines",
+            name="Heart rate",
+            line=dict(color="#ef4444", width=2),
+        ))
+        fig.update_layout(
+            yaxis=dict(title="BPM", tickfont=dict(color="#526071")),
+            yaxis2=dict(title="Steps", overlaying="y", side="right", tickfont=dict(color="#526071")),
+            hovermode="x unified",
+            height=380,
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(255,255,255,0)",
+            margin=dict(l=18, r=18, t=62, b=18),
+            font=dict(family=PLOT_FONT_FAMILY, color="#0f172a"),
+            legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+            title=dict(text="Steps vs heart rate", x=0.02, xanchor="left"),
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    # Hourly heart rate summary bar
+    if not intraday_hr.empty:
+        hourly_hr = intraday_hr.copy()
+        hourly_hr["hour"] = hourly_hr["timestamp"].dt.hour
+        hourly_avg = hourly_hr.groupby("hour")["heart_rate"].agg(["mean", "min", "max"]).reset_index()
+        hourly_avg["hour_label"] = hourly_avg["hour"].map(lambda h: f"{int(h):02d}:00")
+
+        fig = go.Figure()
+        fig.add_trace(go.Bar(
+            x=hourly_avg["hour_label"],
+            y=hourly_avg["mean"],
+            name="Avg HR",
+            marker_color="#ef4444",
+            error_y=dict(
+                type="data",
+                symmetric=False,
+                array=(hourly_avg["max"] - hourly_avg["mean"]).tolist(),
+                arrayminus=(hourly_avg["mean"] - hourly_avg["min"]).tolist(),
+                color="#7f1d1d",
+            ),
+        ))
+        style_figure(fig, title="Hourly heart rate (avg with min/max range)", xaxis_title="Hour", yaxis_title="BPM")
+        st.plotly_chart(fig, use_container_width=True)
 
 def render_sleep_section(sleep_frame: pd.DataFrame) -> None:
     st.subheader("Sleep")
@@ -2277,7 +2411,11 @@ def main() -> None:
         render_heart_section(heart_daily)
     st.divider()
     with st.container(border=True):
+        render_intraday_section(config, token_bundle, intraday_steps, selected_date)  # add this
+    st.divider()
+    with st.container(border=True):
         render_sleep_section(sleep_frame)
+    st.divider()
 
 
 if __name__ == "__main__":
