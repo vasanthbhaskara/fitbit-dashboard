@@ -2273,8 +2273,7 @@ def render_ai_insights_section(
     if cached_insight and cached_insight.get("cache_key") == cache_key:
         st.markdown(cached_insight["content"])
     else:
-        render_empty_state("Click `Generate insights` to create a short summary of your current dashboard data.")
-
+        render_empty_state("Click Generate insights to create a short summary of your current dashboard data.")
 def strip_url_fragment() -> None:
     st.components.v1.html(
         """
