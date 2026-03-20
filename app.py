@@ -1515,28 +1515,45 @@ def apply_app_style() -> None:
 # Credentials setup UI
 # ---------------------------------------------------------------------------
 
-with st.form("fitbit_credentials_form"):
-    col1, col2 = st.columns(2)
-    client_id = col1.text_input("Fitbit Client ID", placeholder="23ABCD")
-    client_secret = col2.text_input("Fitbit Client Secret", type="password", placeholder="abc123...")
-    groq_key = st.text_input(
-        "Groq API Key (optional — for AI insights)",
-        type="password",
-        placeholder="gsk_...",
+def render_credentials_setup() -> None:
+    """Full-page credentials form shown when no config is present."""
+    st.markdown(
+        """
+        <div class="creds-card">
+            <p class="fitbit-hero__eyebrow">Setup</p>
+            <h2>Connect your Fitbit</h2>
+            <div class="creds-hint">
+                You need a free Fitbit developer app to get your Client ID and Secret.<br>
+                Create one at <strong>dev.fitbit.com → Manage → Register An App</strong>.<br>
+                Set the <em>OAuth 2.0 Application Type</em> to <strong>Personal</strong> and
+                the <em>Redirect URL</em> to this app's URL.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
-    submitted = st.form_submit_button("Save and continue", use_container_width=True)
 
-if submitted:
-    if not client_id or not client_secret:
-        st.error("Client ID and Client Secret are required.")
-        return
-    st.session_state["fitbit_client_id"] = client_id.strip()
-    st.session_state["fitbit_client_secret"] = client_secret.strip()
-    # redirect_uri comes from secrets automatically via load_config()
-    if groq_key:
-        st.session_state["groq_api_key"] = groq_key.strip()
-    st.rerun()
+    with st.form("fitbit_credentials_form"):
+        col1, col2 = st.columns(2)
+        client_id = col1.text_input("Fitbit Client ID", placeholder="23ABCD")
+        client_secret = col2.text_input("Fitbit Client Secret", type="password", placeholder="abc123...")
+        groq_key = st.text_input(
+            "Groq API Key (optional — for AI insights)",
+            type="password",
+            placeholder="gsk_...",
+        )
+        submitted = st.form_submit_button("Save and continue", use_container_width=True)
 
+    if submitted:
+        if not client_id or not client_secret:
+            st.error("Client ID and Client Secret are required.")
+            return
+        st.session_state["fitbit_client_id"] = client_id.strip()
+        st.session_state["fitbit_client_secret"] = client_secret.strip()
+        # redirect_uri comes from secrets automatically via load_config()
+        if groq_key:
+            st.session_state["groq_api_key"] = groq_key.strip()
+        st.rerun()
 
 def render_credentials_sidebar_editor() -> None:
     """Sidebar expander to update credentials mid-session."""
