@@ -1651,7 +1651,19 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
         st.sidebar.link_button("Connect Fitbit", auth_url, use_container_width=True)
         html = """
 <div style="max-width:560px;margin:5rem auto;background:white;border-radius:24px;padding:2.5rem 2.75rem;box-shadow:0 24px 56px rgba(15,23,42,0.10);text-align:center;">
-<div style="font-size:2.5rem;margin-bottom:1rem;">💪</div>
+<div style="position:relative;width:48px;height:48px;border-radius:16px;background:rgba(255,255,255,0.9);box-shadow:0 12px 24px rgba(15,23,42,0.06);margin:0 auto 1rem auto;">
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:20px;top:7px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:14px;top:15px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:26px;top:15px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:8px;top:23px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:20px;top:23px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:32px;top:23px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:14px;top:31px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:26px;top:31px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:20px;top:39px;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:38px;top:23px;opacity:0.55;"></span>
+<span style="position:absolute;width:7px;height:7px;border-radius:999px;background:linear-gradient(180deg,rgba(45,212,191,1) 0%,rgba(15,118,110,0.95) 100%);left:2px;top:23px;opacity:0.55;"></span>
+</div
 <h2 style="margin:0 0 0.5rem 0;font-size:1.6rem;">Welcome to your Health Dashboard</h2>
 <p style="color:#526071;margin-bottom:2rem;font-size:1rem;line-height:1.6;">Your personal Fitbit analytics — steps, sleep, heart rate, and AI-powered insights, all in one place.</p>
 <div style="text-align:left;background:#f8fbfc;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
