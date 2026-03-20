@@ -2094,6 +2094,25 @@ def render_ai_insights_section(
     else:
         render_empty_state("Click `Generate insights` to create a short summary of your current dashboard data.")
 
+def strip_url_fragment() -> None:
+    """
+    Fitbit appends #_=_ to the redirect URL after OAuth.
+    Fragments are never sent to the server so st.query_params
+    can't see the code. This JS snippet strips the fragment
+    and reloads the page cleanly so the code param is visible.
+    """
+    st.components.v1.html(
+        """
+        <script>
+        if (window.location.hash && window.location.hash !== '') {
+            window.location.replace(
+                window.location.href.split('#')[0]
+            );
+        }
+        </script>
+        """,
+        height=0,
+    )
 
 # ---------------------------------------------------------------------------
 # Main
@@ -2103,6 +2122,7 @@ def main() -> None:
     bootstrap_environment()
     st.set_page_config(page_title="Fitbit Dashboard", page_icon=":heartbeat:", layout="wide")
     apply_app_style()
+    strip_url_fragment()
 
     config = load_config()
     llm_config = load_llm_config()
