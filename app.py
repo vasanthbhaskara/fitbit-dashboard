@@ -1634,7 +1634,7 @@ def render_credentials_sidebar_editor() -> None:
                 index=default_index,
                 help="All models are free on Groq. Larger models are slower but give better insights.",
             ),
-            )
+        
             if st.form_submit_button("Update", use_container_width=True):
                 st.session_state["fitbit_client_id"] = client_id.strip()
                 st.session_state["fitbit_client_secret"] = client_secret.strip()
