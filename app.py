@@ -1694,6 +1694,12 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
         st.markdown(html, unsafe_allow_html=True)
         st.stop()
 
+def render_empty_state(message: str) -> None:
+    st.markdown(
+        f'<div class="fitbit-empty"><p>{message}</p></div>',
+        unsafe_allow_html=True,
+    )
+
 def render_header(
     profile: dict[str, Any],
     selected_date: date,
