@@ -712,6 +712,13 @@ def aggregate_intraday_steps_by_hour(intraday_steps: pd.DataFrame) -> pd.DataFra
     hourly["hour_label"] = hourly["hour"].map(lambda h: f"{int(h):02d}:00")
     return hourly.sort_values("hour")
 
+def aggregate_intraday_steps_by_minute(intraday_steps: pd.DataFrame) -> pd.DataFrame:
+    if intraday_steps.empty:
+        return pd.DataFrame(columns=["timestamp", "steps", "cumulative_steps", "rolling_10"])
+    frame = intraday_steps.copy().sort_values("timestamp")
+    frame["cumulative_steps"] = frame["steps"].cumsum()
+    frame["rolling_10"] = frame["steps"].rolling(window=10, min_periods=1).mean()
+    return frame
 
 def build_activity_heatmap_frame(intraday_window: pd.DataFrame) -> pd.DataFrame:
     if intraday_window.empty:
@@ -1898,6 +1905,101 @@ def render_steps_section(
     st.plotly_chart(fig, use_container_width=True)
 
 
+def render_minute_level_steps(intraday_steps: pd.DataFrame, selected_date: date) -> None:
+    st.subheader(f"Minute-level activity — {format_date_compact(selected_date)}")
+
+    if intraday_steps.empty:
+        render_empty_state("No minute-level step data available for this date.")
+        return
+
+    frame = aggregate_intraday_steps_by_minute(intraday_steps)
+
+    # --- Plot 1: Activity bursts — highlight active minutes vs sedentary ---
+    frame["active"] = frame["steps"] > 0
+    frame["burst"] = (frame["steps"] >= 60).astype(int)  # high intensity minutes
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=frame["timestamp"],
+        y=frame["steps"],
+        name="Steps per minute",
+        marker_color=frame["burst"].map({1: "#0f766e", 0: "#99f6e4"}),
+        hovertemplate="Time: %{x|%H:%M}<br>Steps: %{y}<extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=frame["timestamp"],
+        y=frame["rolling_10"],
+        mode="lines",
+        name="10-min rolling avg",
+        line=dict(color="#0f172a", width=1.5, dash="dot"),
+    ))
+    style_figure(fig, title="Activity bursts — steps per minute", xaxis_title="Time", yaxis_title="Steps")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- Plot 2: Sedentary streak detector ---
+    frame["sedentary"] = (frame["steps"] == 0).astype(int)
+    frame["streak_id"] = (frame["sedentary"] != frame["sedentary"].shift()).cumsum()
+    streaks = frame[frame["sedentary"] == 1].groupby("streak_id").agg(
+        start=("timestamp", "first"),
+        end=("timestamp", "last"),
+        minutes=("sedentary", "count"),
+    ).reset_index()
+    long_streaks = streaks[streaks["minutes"] >= 30]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=frame["timestamp"],
+        y=frame["cumulative_steps"],
+        mode="lines",
+        name="Cumulative steps",
+        line=dict(color="#0f766e", width=2),
+        fill="tozeroy",
+        fillcolor="rgba(15,118,110,0.08)",
+    ))
+    for _, streak in long_streaks.iterrows():
+        fig.add_vrect(
+            x0=streak["start"],
+            x1=streak["end"],
+            fillcolor="rgba(239,68,68,0.08)",
+            line_width=0,
+            annotation_text=f"{streak['minutes']}m sedentary",
+            annotation_position="top left",
+            annotation_font_size=10,
+            annotation_font_color="#ef4444",
+        )
+    style_figure(fig, title="Cumulative steps with sedentary streaks (30+ min)", xaxis_title="Time", yaxis_title="Cumulative steps")
+    st.plotly_chart(fig, use_container_width=True)
+
+    # --- Plot 3: Active vs sedentary time breakdown donut ---
+    total_minutes = len(frame)
+    active_minutes = int(frame["active"].sum())
+    sedentary_minutes = total_minutes - active_minutes
+    high_intensity = int(frame["burst"].sum())
+    low_intensity = active_minutes - high_intensity
+
+    fig = go.Figure(data=[go.Pie(
+        labels=["High intensity", "Low intensity", "Sedentary"],
+        values=[high_intensity, low_intensity, sedentary_minutes],
+        hole=0.55,
+        marker_colors=["#0f766e", "#99f6e4", "#e2e8f0"],
+        textinfo="label+percent",
+        hovertemplate="%{label}: %{value} minutes<extra></extra>",
+    )])
+    fig.update_layout(
+        title=dict(text="Day activity breakdown", x=0.02, xanchor="left"),
+        height=340,
+        paper_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=18, r=18, t=62, b=18),
+        font=dict(family=PLOT_FONT_FAMILY, color="#0f172a"),
+        annotations=[dict(
+            text=f"<b>{active_minutes}</b><br>active min",
+            x=0.5, y=0.5, font_size=13, showarrow=False,
+            font_color="#0f172a",
+        )],
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+
 def render_activity_patterns_section(
     intraday_steps_window: pd.DataFrame,
     steps_daily: pd.DataFrame,
@@ -2446,13 +2548,12 @@ def main() -> None:
         render_steps_section(steps_daily, intraday_steps, selected_date)
     st.divider()
     with st.container(border=True):
+        render_minute_level_steps(intraday_steps, selected_date)  # add this
+    with st.container(border=True):
         render_heart_section(heart_daily)
-    st.divider()
     st.divider()
     with st.container(border=True):
         render_sleep_section(sleep_frame)
-    st.divider()
-
 
 if __name__ == "__main__":
     main()
