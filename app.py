@@ -457,11 +457,22 @@ def fetch_intraday_heart_rate(
     token_bundle: dict[str, Any],
     selected_date: date,
 ) -> pd.DataFrame:
-    payload = cached_fitbit_get(
-        config,
-        token_bundle,
-        f"/1/user/-/activities/heart/date/{selected_date.isoformat()}/1d/1min.json",
-    )
+    try:
+        payload = cached_fitbit_get(
+            config,
+            token_bundle,
+            f"/1/user/-/activities/heart/date/{selected_date.isoformat()}/1d/1sec.json",
+        )
+    except requests.HTTPError:
+        try:
+            payload = cached_fitbit_get(
+                config,
+                token_bundle,
+                f"/1/user/-/activities/heart/date/{selected_date.isoformat()}/1d/1min.json",
+            )
+        except requests.HTTPError:
+            return pd.DataFrame(columns=["timestamp", "heart_rate"])
+
     dataset = payload.get("activities-heart-intraday", {}).get("dataset", [])
     frame = pd.DataFrame(dataset)
     if frame.empty:
@@ -2412,6 +2423,8 @@ def main() -> None:
     st.divider()
     with st.container(border=True):
         render_intraday_section(config, token_bundle, intraday_steps, selected_date)  # add this
+        intraday_hr = fetch_intraday_heart_rate(config, token_bundle, selected_date)
+        st.write("HR rows:", len(intraday_hr), "| Steps rows:", len(intraday_steps))
     st.divider()
     with st.container(border=True):
         render_sleep_section(sleep_frame)
