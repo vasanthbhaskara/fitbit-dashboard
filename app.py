@@ -1616,9 +1616,24 @@ def render_credentials_sidebar_editor() -> None:
                 type="password",
                 value=st.session_state.get("groq_api_key", ""),
             )
-            groq_model = st.text_input(
+            GROQ_MODELS = [
+                "llama-3.1-8b-instant",
+                "llama-3.3-70b-versatile",
+                "llama-3.1-70b-versatile",
+                "llama3-8b-8192",
+                "llama3-70b-8192",
+                "mixtral-8x7b-32768",
+                "gemma2-9b-it",
+                "gemma-7b-it",
+            ]
+            current_model = st.session_state.get("groq_model", DEFAULT_GROQ_MODEL)
+            default_index = GROQ_MODELS.index(current_model) if current_model in GROQ_MODELS else 0
+            groq_model = st.selectbox(
                 "Groq model",
-                value=st.session_state.get("groq_model", DEFAULT_GROQ_MODEL),
+                options=GROQ_MODELS,
+                index=default_index,
+                help="All models are free on Groq. Larger models are slower but give better insights.",
+            ),
             )
             if st.form_submit_button("Update", use_container_width=True):
                 st.session_state["fitbit_client_id"] = client_id.strip()
