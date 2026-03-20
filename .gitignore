@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.env
+.fitbit_tokens.json
+.fitbit_api_cache.json
+*.pyc
+.DS_Store
