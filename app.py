@@ -2124,12 +2124,13 @@ def main() -> None:
     llm_config = load_llm_config()
 
     if not config.is_configured:
+        # If there's an OAuth code in the URL but session state was lost
+        # (e.g. page refresh), we can't exchange the code — ask user to reconnect
+        if st.query_params.get("code"):
+            st.warning("Your session expired during login. Please enter your credentials again and click Connect Fitbit.")
+            clear_auth_query_params()
         render_credentials_setup()
         st.stop()
-
-    # Only strip fragment once credentials are confirmed —
-    # calling it before causes a rerun that wipes session state
-    strip_url_fragment()
 
     render_credentials_sidebar_editor()
     handle_oauth_callback(config)
