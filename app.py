@@ -2286,6 +2286,7 @@ def render_ai_insights_section(
         st.markdown(cached_insight["content"])
     else:
         render_empty_state("Click Generate insights to create a short summary of your current dashboard data.")
+
 def strip_url_fragment() -> None:
     st.components.v1.html(
         """
