@@ -2095,20 +2095,17 @@ def render_ai_insights_section(
         render_empty_state("Click `Generate insights` to create a short summary of your current dashboard data.")
 
 def strip_url_fragment() -> None:
-    """
-    Fitbit appends #_=_ to the redirect URL after OAuth.
-    Fragments are never sent to the server so st.query_params
-    can't see the code. This JS snippet strips the fragment
-    and reloads the page cleanly so the code param is visible.
-    """
     st.components.v1.html(
         """
         <script>
-        if (window.location.hash && window.location.hash !== '') {
-            window.location.replace(
-                window.location.href.split('#')[0]
-            );
-        }
+        (function() {
+            var parent = window.parent || window;
+            if (parent.location.hash && parent.location.hash !== '') {
+                parent.location.replace(
+                    parent.location.href.split('#')[0]
+                );
+            }
+        })();
         </script>
         """,
         height=0,
