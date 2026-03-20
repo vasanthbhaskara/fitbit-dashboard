@@ -1643,7 +1643,6 @@ def render_empty_state(message: str) -> None:
         unsafe_allow_html=True,
     )
 
-
 def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] | None) -> None:
     st.sidebar.header("Fitbit connection")
     auth_url = build_authorize_url(config)
@@ -1656,51 +1655,26 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
             st.rerun()
     else:
         st.sidebar.link_button("Connect Fitbit", auth_url, use_container_width=True)
-        st.markdown(
-            """
-            <div style="
-                max-width: 560px;
-                margin: 5rem auto;
-                background: white;
-                border-radius: 24px;
-                padding: 2.5rem 2.75rem;
-                box-shadow: 0 24px 56px rgba(15,23,42,0.10);
-                text-align: center;
-            ">
-                <div style="font-size: 2.5rem; margin-bottom: 1rem;">💪</div>
-                <h2 style="margin: 0 0 0.5rem 0; font-size: 1.6rem;">Welcome to your Health Dashboard</h2>
-                <p style="color: #526071; margin-bottom: 2rem; font-size: 1rem; line-height: 1.6;">
-                    Your personal Fitbit analytics — steps, sleep, heart rate, and AI-powered insights, all in one place.
-                </p>
-
-                <div style="text-align: left; background: #f8fbfc; border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem;">
-                    <p style="margin: 0 0 0.75rem 0; font-weight: 600; color: #0f172a; font-size: 0.95rem;">Get started in 2 steps:</p>
-                    <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem;">
-                        <div style="min-width: 28px; height: 28px; background: #0f766e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">1</div>
-                        <p style="margin: 0; color: #526071; font-size: 0.92rem; padding-top: 4px;">
-                            Open the <strong style="color: #0f172a;">sidebar on the left</strong> and enter your
-                            Fitbit Client ID, Client Secret, and Groq API key in the
-                            <strong style="color: #0f172a;">Edit credentials</strong> panel.
-                            Don't have them yet? See the
-                            <a href="https://github.com/vasanthbhaskara/fitbit-dashboard#how-to-use-the-live-app" target="_blank" style="color: #0f766e;">setup guide</a>.
-                        </p>
-                    </div>
-                    <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                        <div style="min-width: 28px; height: 28px; background: #0f766e; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700;">2</div>
-                        <p style="margin: 0; color: #526071; font-size: 0.92rem; padding-top: 4px;">
-                            Click the <strong style="color: #0f172a;">Connect Fitbit</strong> button in the sidebar
-                            to authorise access to your data. You will be redirected to Fitbit and back automatically.
-                        </p>
-                    </div>
-                </div>
-
-                <p style="margin: 0; font-size: 0.8rem; color: #94a3b8;">
-                    Your credentials are stored only in your browser session and never saved to any database.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        html = """
+<div style="max-width:560px;margin:5rem auto;background:white;border-radius:24px;padding:2.5rem 2.75rem;box-shadow:0 24px 56px rgba(15,23,42,0.10);text-align:center;">
+<div style="font-size:2.5rem;margin-bottom:1rem;">💪</div>
+<h2 style="margin:0 0 0.5rem 0;font-size:1.6rem;">Welcome to your Health Dashboard</h2>
+<p style="color:#526071;margin-bottom:2rem;font-size:1rem;line-height:1.6;">Your personal Fitbit analytics — steps, sleep, heart rate, and AI-powered insights, all in one place.</p>
+<div style="text-align:left;background:#f8fbfc;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+<p style="margin:0 0 0.75rem 0;font-weight:600;color:#0f172a;font-size:0.95rem;">Get started in 2 steps:</p>
+<div style="display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;">
+<div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">1</div>
+<p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">Open the <strong style="color:#0f172a;">sidebar on the left</strong> and enter your Fitbit Client ID and Client Secret in the <strong style="color:#0f172a;">Edit credentials</strong> panel. Don't have them yet? See the <a href="https://github.com/vasanthbhaskara/fitbit-dashboard#how-to-use-the-live-app" target="_blank" style="color:#0f766e;">setup guide</a>.</p>
+</div>
+<div style="display:flex;align-items:flex-start;gap:0.75rem;">
+<div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">2</div>
+<p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">Click the <strong style="color:#0f172a;">Connect Fitbit</strong> button in the sidebar to authorise access to your data. You will be redirected to Fitbit and back automatically.</p>
+</div>
+</div>
+<p style="margin:0;font-size:0.8rem;color:#94a3b8;">Your credentials are stored only in your browser session and never saved to any database.</p>
+</div>
+"""
+        st.markdown(html, unsafe_allow_html=True)
         st.stop()
 
 
