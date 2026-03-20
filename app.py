@@ -1663,7 +1663,7 @@ def render_connection_panel(config: FitbitConfig, token_bundle: dict[str, Any] |
 </div>
 <div style="display:flex;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem;">
 <div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">2</div>
-<p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">In the <strong style="color:#0f172a;">Redirect URI</strong> field, paste the URL you see in your browser address bar right now — for example <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;">https://your-app.streamlit.app/</code>. This must exactly match what you set in the Fitbit developer portal, including the trailing slash.</p>
+<p style="margin:0;color:#526071;font-size:0.92rem;padding-top:4px;">In the <strong style="color:#0f172a;">Redirect URI</strong> field, paste the URL you see in your browser address bar right now — i.e., <code style="background:#e2e8f0;padding:1px 5px;border-radius:4px;">https://fitbit-ai-dashboard.streamlit.app/</code>. This must exactly match what you set in the Fitbit developer portal, including the trailing slash.</p>
 </div>
 <div style="display:flex;align-items:flex-start;gap:0.75rem;">
 <div style="min-width:28px;height:28px;background:#0f766e;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">3</div>
