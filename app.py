@@ -2548,7 +2548,8 @@ def main() -> None:
         render_steps_section(steps_daily, intraday_steps, selected_date)
     st.divider()
     with st.container(border=True):
-        render_minute_level_steps(intraday_steps, selected_date)  # add this
+        render_minute_level_steps(intraday_steps, selected_date)
+    st.divider()
     with st.container(border=True):
         render_heart_section(heart_daily)
     st.divider()
