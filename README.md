@@ -1,66 +1,112 @@
-# Fitbit Streamlit Dashboard
+# Fitbit Dashboard
 
-Streamlit dashboard for live Fitbit activity, heart-rate, and sleep analytics.
+An open-source, LLM-powered personal health dashboard built with Streamlit. Connect your Fitbit, explore your activity, sleep, and heart rate data through interactive charts, and get AI-generated insights powered by Groq.
+
+![Python](https://img.shields.io/badge/Python-3.10+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.x-red) ![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## Overview
+
+This dashboard connects to the Fitbit Web API via OAuth 2.0 and visualises your personal health data in real time. No backend server required — credentials and tokens are stored entirely in your browser session.
+
+Anyone can use it by entering their own Fitbit developer credentials directly in the app UI.
+
+---
 
 ## Features
 
-- Fitbit OAuth 2.0 login with refresh-token persistence
-- Daily and intraday steps charts
-- Daily and intraday heart-rate analysis with summary fallback when intraday data is missing
-- Sleep duration, stage breakdown, and bedtime consistency charts
-- Temperature, respiratory rate, oxygen saturation, and cardio-fitness trend panels
-- Regression-based step and resting heart-rate forecasts
-- Statistical insight cards for trends, correlation, and outliers
-- Selected-day drilldown metrics and AI day-level insights
-- Optional AI insights panel powered by Groq
+| Category | Details |
+|---|---|
+| **Activity** | Daily steps, 7-day rolling average, hourly breakdown, cumulative chart |
+| **Heart rate** | Resting HR trend, 3-day rolling average, next-day forecast |
+| **Sleep** | Duration, stage breakdown (deep/light/REM/wake), bedtime consistency |
+| **Wellness** | Skin temperature variation, respiratory rate, SpO2, cardio fitness (VO2 Max) |
+| **Analytics** | Linear regression forecasts, z-score outlier detection, sleep/steps correlation |
+| **Consistency score** | Composite daily score across steps, sleep, efficiency, bedtime, and recovery |
+| **AI insights** | Groq LLM summary of your metrics — window summary or selected-day drilldown |
 
-## Setup
+---
 
-1. Create a Fitbit developer app in the Fitbit developer portal.
-2. Configure the redirect URI to match your Streamlit app URL.
-   - Local default: `http://localhost:8501`
-3. Copy `.env.example` to `.env` and fill in your Fitbit client credentials.
-4. Install dependencies:
+## Getting started
+
+### 1. Create a Fitbit developer app
+
+- Go to [dev.fitbit.com](https://dev.fitbit.com) → Manage → Register An App
+- Set **OAuth 2.0 Application Type** to `Personal`
+- Set **Redirect URL** to `http://localhost:8501/`
+- Note your **Client ID** and **Client Secret**
+
+### 2. Install and run
 
 ```bash
+git clone https://github.com/vasanthbhaskara/fitbit-dashboard.git
+cd fitbit-dashboard
 pip install -r requirements.txt
-```
-
-5. Run the app:
-
-```bash
 streamlit run app.py
 ```
 
-## Optional AI insights
+### 3. Connect in the UI
 
-Add a Groq API key to `.env` if you want a free-tier LLM summary of the current dashboard metrics:
+On first load the app shows a credentials form. Enter your Client ID, Client Secret, and Redirect URI — no `.env` file needed.
 
-```bash
-GROQ_API_KEY=your_groq_api_key
-GROQ_MODEL=llama-3.1-8b-instant
+### 4. Authorize Fitbit
+
+Click **Connect Fitbit** in the sidebar. After authorizing, you'll be redirected back and the dashboard loads automatically.
+
+---
+
+## AI insights (optional)
+
+Get a free API key at [console.groq.com](https://console.groq.com) and enter it in the credentials form. The default model is `llama-3.1-8b-instant`.
+
+The AI sees only aggregated daily metrics — not raw intraday data.
+
+---
+
+## Deploying to Streamlit Cloud
+
+1. Fork or push this repo to GitHub
+2. Go to [share.streamlit.io](https://share.streamlit.io) and connect your repo
+3. Select `app.py` as the entry point and deploy
+4. Copy your public Streamlit URL (e.g. `https://yourname-fitbit-dashboard.streamlit.app/`)
+5. Add it as a second Redirect URL in your Fitbit developer app settings
+
+Each visitor uses their own Fitbit developer credentials — no shared API keys.
+
+---
+
+## Project structure
+
+```
+fitbit-dashboard/
+├── app.py              # Main Streamlit app
+├── requirements.txt    # Python dependencies
+├── .env.example        # Optional local config template
+└── README.md
 ```
 
-Then use the `Generate insights` button inside the app. The LLM sees only aggregated Fitbit metrics prepared by the dashboard, not your full raw intraday dataset.
+---
 
-## Fitbit scopes
+## Tech stack
 
-The app expects these scopes:
+- [Streamlit](https://streamlit.io) — UI and deployment
+- [Fitbit Web API](https://dev.fitbit.com/build/reference/web-api/) — health data
+- [Plotly](https://plotly.com/python/) — interactive charts
+- [Pandas](https://pandas.pydata.org) — data processing
+- [Groq](https://console.groq.com) — LLM inference for AI insights
 
-- `activity`
-- `heartrate`
-- `sleep`
-- `profile`
-- `temperature`
-- `respiratory_rate`
-- `oxygen_saturation`
-- `cardio_fitness`
-
-If you add new scopes after first authorizing the app, disconnect and reconnect Fitbit so the token is reissued with the expanded scope set.
+---
 
 ## Notes
 
-- Detailed intraday endpoints are typically intended for personal-use applications connected to your own Fitbit account.
-- OAuth tokens are stored locally in `.fitbit_tokens.json` so the app can refresh access automatically.
-- Fitbit API responses are cached locally and in the Streamlit session for 15 minutes to reduce quota pressure, and the lookback slider is capped to keep request volume predictable.
-- The original `fitbit.py` file in this repo is an older notebook export and is not used by the Streamlit app.
+- Fitbit's intraday endpoints are available for personal-use apps connected to your own account
+- API responses are cached in session state for 15 minutes to reduce quota pressure
+- The lookback window is capped at 30 days to keep requests predictable
+- Tokens are stored in session state only — nothing is written to disk on Streamlit Cloud
+
+---
+
+## License
+
+MIT
