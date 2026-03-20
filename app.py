@@ -2146,7 +2146,6 @@ def strip_url_fragment() -> None:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
-
 def main() -> None:
     bootstrap_environment()
     st.set_page_config(page_title="Fitbit Dashboard", page_icon=":heartbeat:", layout="wide")
@@ -2155,8 +2154,8 @@ def main() -> None:
     config = load_config()
     llm_config = load_llm_config()
 
+    # Restore credentials from OAuth state param if session was wiped on redirect
     if not config.is_configured:
-        # Check if state param has credentials from OAuth redirect
         state = format_query_param("state")
         if state and format_query_param("code"):
             try:
@@ -2170,9 +2169,19 @@ def main() -> None:
             except Exception:
                 pass
 
-        if not config.is_configured:
-            render_credentials_setup()
-            st.stop()
+    if not config.is_configured:
+        render_credentials_setup()
+        st.stop()
+
+    render_credentials_sidebar_editor()
+    handle_oauth_callback(config)
+
+    try:
+        token_bundle = get_active_token_bundle(config)
+    except requests.RequestException as exc:
+        st.error(f"Unable to refresh Fitbit access token: {format_request_error(exc)}")
+        clear_token_bundle()
+        st.stop()
 
     render_connection_panel(config, token_bundle)
 
